@@ -2,11 +2,14 @@ package com.example.mystore;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.example.mystore.category.CategoryCreateActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,5 +27,11 @@ public class MainActivity extends AppCompatActivity {
                 .apply(new RequestOptions().override(600))
                 .into(ivAvater);
 
+    }
+
+    public void onClickHandleToCreate(View view) {
+        Intent intent = new Intent(this, CategoryCreateActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
