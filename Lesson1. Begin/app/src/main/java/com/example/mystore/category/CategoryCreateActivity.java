@@ -62,13 +62,13 @@ public class CategoryCreateActivity extends BaseActivity {
         RequestBody name = RequestBody.create(MultipartBody.FORM, tfCategoryName.getEditText().getText().toString());
         RequestBody description = RequestBody.create(MultipartBody.FORM, tfCategoryDescription.getEditText().getText().toString());
 
-        CategoryCreateDTO dto = new CategoryCreateDTO();
-        dto.setName(name);
-        dto.setImage(image);
-        dto.setDescription(description);
+//        CategoryCreateDTO dto = new CategoryCreateDTO();
+//        dto.setName(name);
+//        dto.setImage(image);
+//        dto.setDescription(description);
         ApplicationNetwork.getInstance()
                 .getCategoriesApi()
-                .create(dto)
+                .create(name, description, image)
                 .enqueue(new Callback<CategoryItemDTO>() {
                     @Override
                     public void onResponse(Call<CategoryItemDTO> call, Response<CategoryItemDTO> response) {
