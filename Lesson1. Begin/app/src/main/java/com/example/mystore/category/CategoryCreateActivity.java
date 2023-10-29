@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.example.mystore.BaseActivity;
 import com.example.mystore.MainActivity;
 import com.example.mystore.R;
 import com.example.mystore.dto.category.CategoryCreateDTO;
@@ -18,7 +19,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class CategoryCreateActivity extends AppCompatActivity {
+public class CategoryCreateActivity extends BaseActivity {
 
     private TextInputLayout tfCategoryName;
     private TextInputLayout tfCategoryImage;
@@ -37,10 +38,10 @@ public class CategoryCreateActivity extends AppCompatActivity {
         String name = tfCategoryName.getEditText().getText().toString();
         String image = tfCategoryImage.getEditText().getText().toString();
         String description = tfCategoryDescription.getEditText().getText().toString();
-        Log.d("myapp", "------Нажали кнопку---------");
-        Log.d("myapp", "------Name---------"+ name);
-        Log.d("myapp", "------Image--------"+image);
-        Log.d("myapp", "------Description--------"+description);
+//        Log.d("myapp", "------Нажали кнопку---------");
+//        Log.d("myapp", "------Name---------"+ name);
+//        Log.d("myapp", "------Image--------"+image);
+//        Log.d("myapp", "------Description--------"+description);
 
         CategoryCreateDTO dto = new CategoryCreateDTO();
         dto.setName(name);
@@ -54,7 +55,7 @@ public class CategoryCreateActivity extends AppCompatActivity {
                     public void onResponse(Call<CategoryItemDTO> call, Response<CategoryItemDTO> response) {
                         if(response.isSuccessful()) {
                             CategoryItemDTO result = response.body();
-                            Log.i("myapp", "----Crate category id ="+result.getId());
+                            //Log.i("myapp", "----Crate category id ="+result.getId());
                             Intent intent = new Intent(CategoryCreateActivity.this, MainActivity.class);
                             startActivity(intent);
                             finish();

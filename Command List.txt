@@ -9,9 +9,9 @@ docker images --all
 
 docker ps -a
 
-docker stop spu123_container
-docker rm spu123_container
+docker stop vpd121_container
+docker rm vpd121_container
 
-docker rmi spu123_image
+docker rmi vpd121_image
 
 

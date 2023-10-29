@@ -1,37 +1,54 @@
 package com.example.mystore;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
+import android.util.Log;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
-import com.example.mystore.category.CategoryCreateActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.mystore.category.CategoriesAdapter;
+import com.example.mystore.dto.category.CategoryItemDTO;
+import com.example.mystore.service.ApplicationNetwork;
 
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MainActivity extends BaseActivity {
+
+    RecyclerView rcCategories;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String url = "https://vpd121.itstep.click/images/1.jpg";
+        rcCategories = findViewById(R.id.rcCategories);
+        rcCategories.setHasFixedSize(true);
+        rcCategories.setLayoutManager(new GridLayoutManager(this, 2, RecyclerView.VERTICAL, false));
 
-        ImageView ivAvater = (ImageView) findViewById(R.id.ivAvater);
+        ApplicationNetwork
+                .getInstance()
+                .getCategoriesApi()
+                .list()
+                .enqueue(new Callback<List<CategoryItemDTO>>() {
+                    @Override
+                    public void onResponse(Call<List<CategoryItemDTO>> call, Response<List<CategoryItemDTO>> response) {
+                        if(response.isSuccessful()) {
+                            List<CategoryItemDTO> data = response.body();
+                            CategoriesAdapter ad = new CategoriesAdapter(data);
+                            rcCategories.setAdapter(ad);
+                            //Log.d("Site count items", Integer.toString(data.size()));
+                        }
+                    }
 
-        Glide.with(this)
-                .load(url)
-                .apply(new RequestOptions().override(600))
-                .into(ivAvater);
+                    @Override
+                    public void onFailure(Call<List<CategoryItemDTO>> call, Throwable t) {
 
+                    }
+                });
     }
 
-    public void onClickHandleToCreate(View view) {
-        Intent intent = new Intent(this, CategoryCreateActivity.class);
-        startActivity(intent);
-        finish();
-    }
+
 }
