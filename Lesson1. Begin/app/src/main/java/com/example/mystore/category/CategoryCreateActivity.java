@@ -1,15 +1,18 @@
 package com.example.mystore.category;
 
-import androidx.appcompat.app.AppCompatActivity;
-
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+
+import androidx.core.app.ActivityCompat;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -17,12 +20,13 @@ import com.example.mystore.BaseActivity;
 import com.example.mystore.MainActivity;
 import com.example.mystore.R;
 import com.example.mystore.application.HomeApplication;
-import com.example.mystore.dto.category.CategoryCreateDTO;
 import com.example.mystore.dto.category.CategoryItemDTO;
 import com.example.mystore.service.ApplicationNetwork;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -39,10 +43,33 @@ public class CategoryCreateActivity extends BaseActivity {
     private ImageView ivSelectImage;
     private TextInputLayout tfCategoryDescription;
 
+    private final String TAG="CategoryCrateActivity";
+    public  boolean isStoragePermissionGranted() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v(TAG,"Permission is granted");
+                return true;
+            } else {
+
+                Log.v(TAG,"Permission is revoked");
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                return false;
+            }
+        }
+        else { //permission is automatically granted on sdk<23 upon installation
+            Log.v(TAG,"Permission is granted");
+            return true;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_category_create);
+
+        Log.d("Permision", Boolean.toString(isStoragePermissionGranted()));
+
         tfCategoryName=findViewById(R.id.tfCategoryName);
         ivSelectImage=findViewById(R.id.ivSelectImage);
         tfCategoryDescription=findViewById(R.id.tfCategoryDescription);
@@ -56,19 +83,23 @@ public class CategoryCreateActivity extends BaseActivity {
     }
 
     public void onClickAddCategory(View view) {
-        File file = new File(filePath);
-        RequestBody fileRequestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        MultipartBody.Part image = MultipartBody.Part.createFormData("file", file.getName(), fileRequestBody);
-        RequestBody name = RequestBody.create(MultipartBody.FORM, tfCategoryName.getEditText().getText().toString());
-        RequestBody description = RequestBody.create(MultipartBody.FORM, tfCategoryDescription.getEditText().getText().toString());
+        String name = tfCategoryName.getEditText().getText().toString().trim();
+        String description = tfCategoryDescription.getEditText().getText().toString().trim();
 
-//        CategoryCreateDTO dto = new CategoryCreateDTO();
-//        dto.setName(name);
-//        dto.setImage(image);
-//        dto.setDescription(description);
+        Map<String, RequestBody> map = new HashMap<>();
+        map.put("name", RequestBody.create(MediaType.parse("text/plain"), name));
+        map.put("description", RequestBody.create(MediaType.parse("text/plain"), description));
+
+        MultipartBody.Part imagePart=null;
+        if (filePath != null) {
+            File imageFile = new File(filePath);
+            RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), imageFile);
+            imagePart = MultipartBody.Part.createFormData("image", imageFile.getName(), requestFile);
+        }
+
         ApplicationNetwork.getInstance()
                 .getCategoriesApi()
-                .create(name, description, image)
+                .create(map, imagePart)
                 .enqueue(new Callback<CategoryItemDTO>() {
                     @Override
                     public void onResponse(Call<CategoryItemDTO> call, Response<CategoryItemDTO> response) {

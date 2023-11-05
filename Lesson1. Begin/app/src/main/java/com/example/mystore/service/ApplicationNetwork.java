@@ -1,5 +1,6 @@
 package com.example.mystore.service;
 
+import com.example.mystore.contants.Urls;
 import com.example.mystore.network.CategoriesApi;
 
 import retrofit2.Retrofit;
@@ -12,7 +13,7 @@ public class ApplicationNetwork {
     public ApplicationNetwork() {
         retrofit = new Retrofit
                 .Builder()
-                .baseUrl("https://vpd121.itstep.click")
+                .baseUrl(Urls.BASE)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }

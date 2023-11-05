@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.mystore.R;
 import com.example.mystore.application.HomeApplication;
+import com.example.mystore.contants.Urls;
 import com.example.mystore.dto.category.CategoryItemDTO;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class CategoriesAdapter extends RecyclerView.Adapter<CategoryCardViewHold
             CategoryItemDTO dto = categories.get(position);
             holder.getCategoryName().setText(dto.getName());
             Glide.with(HomeApplication.getAppContext())
-                    .load(dto.getImage())
+                    .load(Urls.BASE + "/images/" + dto.getImage())
                     .apply(new RequestOptions().override(300))
                     .into(holder.getCategoryImage());
         }
