@@ -60,20 +60,44 @@ namespace WebStore.Data
                     var laptop = new CategoryEntity
                     {
                         Name = "Ноутбуки",
-                        Image= "https://img-prod-cms-rt-microsoft-com.akamaized.net/cms/api/am/imageFileData/RE4OXzi?ver=3a58",
+                        Image = SaveUrlImage("https://content1.rozetka.com.ua/goods/images/big/358209275.jpg"),
+                        UserId = 1,
                         Description="Для роботи і навчання",
                         DateCreated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)
                     };
                     var clothes = new CategoryEntity
                     {
                         Name = "Одяг",
-                        Image = "https://static.independent.co.uk/s3fs-public/thumbnails/image/2019/03/27/11/woman-clothing-happy.jpg?width=1200",
+                        Image = SaveUrlImage("https://content1.rozetka.com.ua/goods/images/big_tile/374354420.jpg"),
+                        UserId = 1,
                         Description = "Для дівчат і хлопців",
                         DateCreated = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)
                     };
                     context.Categories.Add(laptop);
                     context.Categories.Add(clothes);
                     context.SaveChanges();
+                }
+            }
+        }
+
+        private static string SaveUrlImage(string url)
+        {
+            string imageName = string.Empty;
+            using (HttpClient client = new HttpClient())
+            {
+                try
+                {
+                    byte[] imageBytes = client.GetByteArrayAsync(url).Result;
+                    imageName = Path.GetRandomFileName() + ".jpg";
+                    string dirSaveImage = Path.Combine(Directory.GetCurrentDirectory(), "images", imageName);
+                    // Save the downloaded image bytes to a file
+                    File.WriteAllBytes(dirSaveImage, imageBytes);
+                    return imageName;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error downloading or saving image: {ex.Message}");
+                    return null;
                 }
             }
         }

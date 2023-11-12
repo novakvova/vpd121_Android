@@ -1,29 +1,39 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebStore.Data;
 using WebStore.Data.Entities;
+using WebStore.Data.Entities.Identity;
 using WebStore.Models.Category;
 
 namespace WebStore.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CategoriesController : ControllerBase
     {
         private readonly AppEFContext _appEFContext;
         private readonly IMapper _mapper;
-        public CategoriesController(AppEFContext appEFContext, IMapper mapper)
+        private readonly UserManager<UserEntity> _userManager;
+        public CategoriesController(AppEFContext appEFContext, IMapper mapper, 
+            UserManager<UserEntity> userManager)
         {
             _appEFContext = appEFContext;
             _mapper = mapper;
+            _userManager = userManager;
         }
         [HttpGet("list")]
         public async Task<IActionResult> Index()
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             var model = await _appEFContext.Categories
                 .Where(x => x.IsDeleted == false)
+                .Where(x => x.UserId == user.Id)
                 .Select(x => _mapper.Map<CategoryItemViewModel>(x))
                 .ToListAsync();
 
@@ -33,8 +43,11 @@ namespace WebStore.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
+            string userName = User.Claims.First().Value;
+            var user = await _userManager.FindByEmailAsync(userName);
             var cat = await _appEFContext.Categories
                 .Where(x => x.IsDeleted == false)
+                .Where(x => x.UserId == user.Id)
                 .SingleOrDefaultAsync(x => x.Id == id);
             
             if(cat == null)
@@ -50,7 +63,9 @@ namespace WebStore.Controllers
             try
             {
                 var cat = _mapper.Map<CategoryEntity>(model);
-
+                string userName = User.Claims.First().Value;
+                var user = await _userManager.FindByEmailAsync(userName);
+                cat.UserId = user.Id;
                 string imageName = String.Empty;
                 if (model.Image != null)
                 {
@@ -77,8 +92,11 @@ namespace WebStore.Controllers
         {
             try
             {
+                string userName = User.Claims.First().Value;
+                var user = await _userManager.FindByEmailAsync(userName);
                 var cat = await _appEFContext.Categories
                 .Where(x => x.IsDeleted == false)
+                .Where(x => x.UserId == user.Id)
                 .SingleOrDefaultAsync(x => x.Id == model.Id);
 
                 if (cat == null)
@@ -102,8 +120,11 @@ namespace WebStore.Controllers
         {
             try
             {
+                string userName = User.Claims.First().Value;
+                var user = await _userManager.FindByEmailAsync(userName);
                 var cat = await _appEFContext.Categories
                 .Where(x => x.IsDeleted == false)
+                .Where(x => x.UserId == user.Id)
                 .SingleOrDefaultAsync(x => x.Id == id);
 
                 if (cat == null)

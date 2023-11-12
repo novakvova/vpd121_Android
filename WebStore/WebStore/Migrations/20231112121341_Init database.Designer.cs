@@ -12,8 +12,8 @@ using WebStore.Data;
 namespace WebStore.Migrations
 {
     [DbContext(typeof(AppEFContext))]
-    [Migration("20231105151010_Add Identity Tabels")]
-    partial class AddIdentityTabels
+    [Migration("20231112121341_Init database")]
+    partial class Initdatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,10 +76,12 @@ namespace WebStore.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("ProviderDisplayName")
                         .HasColumnType("text");
@@ -100,10 +102,12 @@ namespace WebStore.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("text");
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)");
 
                     b.Property<string>("Value")
                         .HasColumnType("text");
@@ -141,7 +145,12 @@ namespace WebStore.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("tblCategories");
                 });
@@ -305,6 +314,17 @@ namespace WebStore.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("WebStore.Data.Entities.CategoryEntity", b =>
+                {
+                    b.HasOne("WebStore.Data.Entities.Identity.UserEntity", "User")
+                        .WithMany("Categories")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("WebStore.Data.Entities.Identity.UserRoleEntity", b =>
                 {
                     b.HasOne("WebStore.Data.Entities.Identity.RoleEntity", "Role")
@@ -331,6 +351,8 @@ namespace WebStore.Migrations
 
             modelBuilder.Entity("WebStore.Data.Entities.Identity.UserEntity", b =>
                 {
+                    b.Navigation("Categories");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
